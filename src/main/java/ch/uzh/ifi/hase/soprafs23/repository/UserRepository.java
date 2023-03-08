@@ -5,8 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository("userRepository")
+// 1st generic argument: entity, 2nd: type of the primary key in DB
 public interface UserRepository extends JpaRepository<User, Long> {
-  User findByName(String name);
-
   User findByUsername(String username);
+  User findByToken(String token);
 }

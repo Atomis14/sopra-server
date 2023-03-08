@@ -57,7 +57,7 @@ once the content of a file has been changed.
 
 Start two terminal windows and run:
 
-`./gradlew build --continuous`
+`./gradlew build --continuous --stacktrace --warning-mode all`
 
 and in the other one:
 

@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * User Service
@@ -39,9 +38,47 @@ public class UserService {
     return this.userRepository.findAll();
   }
 
+  public User getUserByUsername(String username) {
+    return this.userRepository.findByUsername(username);
+  }
+
+  public Optional<User> getUserById(long id) {
+    return this.userRepository.findById(id);
+  }
+
+  public User getUserByToken(String token) {
+    return this.userRepository.findByToken(token);
+  }
+
+  public void setUserStatus(User user, UserStatus status) {
+    user.setStatus(status);
+    //checkIfUserExists(user);
+    userRepository.saveAndFlush(user);
+  }
+
+  public void validateToken(String token) {
+    if (token == null || userRepository.findByToken(token) == null) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot access protected route.");
+    }
+  }
+
+  public User updateUser(User user, String username, Date birthday) {
+    if (!Objects.equals(user.getUsername(), username)) {  // if username has changed ...
+      if(userRepository.findByUsername(username) != null) { // ... check if already taken
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username already taken.");
+      }
+    }
+    user.setUsername(username);
+    user.setBirthday(birthday);
+    userRepository.saveAndFlush(user);
+    return user;
+  }
+
   public User createUser(User newUser) {
+    // TODO set token random again
     newUser.setToken(UUID.randomUUID().toString());
-    newUser.setStatus(UserStatus.OFFLINE);
+
+    newUser.setStatus(UserStatus.ONLINE);   // users are logged in automatically after creation --> online
     checkIfUserExists(newUser);
     // saves the given entity but data is only persisted in the database once
     // flush() is called
@@ -64,16 +101,9 @@ public class UserService {
    */
   private void checkIfUserExists(User userToBeCreated) {
     User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-    User userByName = userRepository.findByName(userToBeCreated.getName());
-
     String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-    if (userByUsername != null && userByName != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          String.format(baseErrorMessage, "username and the name", "are"));
-    } else if (userByUsername != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
-    } else if (userByName != null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
+    if (userByUsername != null) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
     }
   }
 }

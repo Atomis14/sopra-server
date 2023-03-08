@@ -40,18 +40,20 @@ public class UserServiceIntegrationTest {
     assertNull(userRepository.findByUsername("testUsername"));
 
     User testUser = new User();
-    testUser.setName("testName");
     testUser.setUsername("testUsername");
+    testUser.setPassword("123456");
 
     // when
     User createdUser = userService.createUser(testUser);
 
     // then
     assertEquals(testUser.getId(), createdUser.getId());
-    assertEquals(testUser.getName(), createdUser.getName());
     assertEquals(testUser.getUsername(), createdUser.getUsername());
+    assertEquals(testUser.getPassword(), createdUser.getPassword());
     assertNotNull(createdUser.getToken());
-    assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    assertNotNull(createdUser.getCreationDate());
+    assertNull(createdUser.getBirthday());
+    assertEquals(UserStatus.ONLINE, createdUser.getStatus());
   }
 
   @Test
@@ -59,15 +61,15 @@ public class UserServiceIntegrationTest {
     assertNull(userRepository.findByUsername("testUsername"));
 
     User testUser = new User();
-    testUser.setName("testName");
     testUser.setUsername("testUsername");
+    testUser.setPassword("123456");
     User createdUser = userService.createUser(testUser);
 
     // attempt to create second user with same username
     User testUser2 = new User();
+    testUser2.setPassword("123456");
 
     // change the name but forget about the username
-    testUser2.setName("testName2");
     testUser2.setUsername("testUsername");
 
     // check that an error is thrown
