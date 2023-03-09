@@ -42,10 +42,10 @@ public class UserController {
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     User user = userService.getUserByUsername(userInput.getUsername());
     if (user == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username doesn't exist.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username doesn't exist.");
     }
     if (!Objects.equals(userInput.getPassword(), user.getPassword())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong password.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password.");
     }
     userService.setUserStatus(user, UserStatus.ONLINE); // update online status
     return DTOMapper.INSTANCE.convertEntityToUserLoginDTO(user);
@@ -81,10 +81,10 @@ public class UserController {
     // convert API user to internal representation
     User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
     if(Objects.equals(userInput.getUsername(), "") || userInput.getUsername() == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Username cannot be empty.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty.");
     }
     if(Objects.equals(userInput.getPassword(), "") || userInput.getPassword() == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Password cannot be empty.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password cannot be empty.");
     }
     User createdUser = userService.createUser(userInput);
     return DTOMapper.INSTANCE.convertEntityToUserLoginDTO(createdUser);

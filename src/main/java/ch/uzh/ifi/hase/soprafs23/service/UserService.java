@@ -58,7 +58,7 @@ public class UserService {
 
   public void validateToken(String token) {
     if (token == null || userRepository.findByToken(token) == null) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot access protected route.");
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Cannot access protected route.");
     }
   }
 
